@@ -234,3 +234,10 @@ exportButton.addEventListener('click', async () => {
     exportButton.innerHTML = '↓ &nbsp; Export world';
   }
 });
+
+import { setupSpaceConnector } from './space-connector.js';
+setupSpaceConnector(async () => {
+  if (!renderer || !globe || container.hidden) throw new Error('3D renderer unavailable.');
+  const { exportWorld } = await import('./export-world.js');
+  return exportWorld(renderer, globe, names[palette]);
+});
