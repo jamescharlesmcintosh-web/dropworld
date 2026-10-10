@@ -13,7 +13,7 @@
     <header class="topbar">
       <a class="brand" href="./" aria-label="Dropworld home"><span class="brand-mark">◒</span> dropworld<span class="brand-dot">.</span></a>
       <div class="top-meta"><span class="live-dot"></span> INDEPENDENT WORLD <span class="edition">001 / CHROMA</span></div>
-      <button class="icon-button" id="snapshot" title="Save planet as an image" aria-label="Save planet as an image"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M14 3h7v7M21 3l-10 10M10 5H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"/></svg><span>Capture</span></button>
+      <div class="export-actions"><button class="primary" id="export-world" title="Download the 3D planet with its current paint texture">↓ &nbsp; Export world</button><button class="icon-button" id="snapshot" title="Save planet as an image" aria-label="Save planet as an image"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M14 3h7v7M21 3l-10 10M10 5H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"/></svg><span>Capture</span></button></div>
     </header>
     <section class="world" aria-label="Interactive paint planet">
       <div id="scene" role="img" aria-label="A three-dimensional planet covered in swirling, colorful paint. Drag to orbit and scroll to zoom."></div>
@@ -34,6 +34,7 @@
       <div class="control-group action-group"><button id="pause" class="secondary" aria-pressed="false">Ⅱ <span>Pause motion</span></button><button id="reset" class="icon-button" aria-label="Reset view and planet settings" title="Reset planet">↺</button><button id="remix" class="primary">✦ &nbsp; Remix world</button></div>
     </section>
     <footer><span>A world of your own.</span><span>SELF-CONTAINED <b>·</b> READY TO GO ANYWHERE</span><span>Made to be explored <span class="tiny-star">✧</span></span></footer>
+    <p class="export-notice" id="export-notice" role="status" aria-live="polite" hidden></p>
     <p class="sr-only" id="announcement" role="status" aria-live="polite"></p>
   </main>
   <script type="module" src="/src/main.js"></script>

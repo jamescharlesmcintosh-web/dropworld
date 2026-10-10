@@ -205,3 +205,32 @@ document.querySelector('#snapshot').addEventListener('click', () => {
 reducedMotion.addEventListener('change', (event) => {
   paused=event.matches; if(controls) controls.enableDamping=!event.matches; syncPause(); dirty=true;
 });
+
+const exportButton = document.querySelector('#export-world');
+exportButton.addEventListener('click', async () => {
+  const notice = document.querySelector('#export-notice');
+  notice.hidden = false;
+  if (!renderer || !globe || container.hidden) {
+    notice.textContent = 'World export requires an active 3D renderer.';
+    return;
+  }
+  exportButton.disabled = true;
+  exportButton.textContent = 'Exporting…';
+  notice.textContent = 'Preparing your planet and paint texture…';
+  try {
+    const { exportWorld } = await import('./export-world.js');
+    const binary = await exportWorld(renderer, globe, names[palette]);
+    const url = URL.createObjectURL(new Blob([binary], { type: 'model/gltf-binary' }));
+    const link = document.createElement('a');
+    link.download = 'chroma-world.glb'; link.href = url; link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+    notice.textContent = 'World exported as GLB with its current paint texture. Animated paint stays in the web experience.';
+  } catch (error) {
+    console.error('World export failed:', error);
+    notice.textContent = 'Export failed. Please try again or reload the experience.';
+  } finally {
+    dirty = true;
+    exportButton.disabled = false;
+    exportButton.innerHTML = '↓ &nbsp; Export world';
+  }
+});

@@ -15,6 +15,12 @@ npm run preview
 
 Development entry: the root page served by Vite (default port 5173). Production entry: `dist/index.html`, served over HTTP(S). The generated `dist/` folder includes all runtime dependencies and uses relative asset paths. No API keys, external fonts, or remote texture requests are needed.
 
+## Export the 3D world itself
+
+Click **Export world** to download `chroma-world.glb`. It contains the sphere geometry, material, and a baked 2048 × 1024 PNG of the current paint texture in one file. Import it into any compatible glTF/GLB viewer or engine. The planet is centered at the origin with radius 1.48 units; the host chooses placement, scale, and lighting. No website UI or star field is included.
+
+GLB captures the paint at export time. The procedural paint animation and browser controls remain in the standalone web bundle; they are not converted into GLB animations. Use the web experience when you need continuously changing paint.
+
 ## Drop it into another environment
 
 Copy the entire `dist/` folder to any static web host. The completed folder can be moved without rebuilding. Open its `index.html` URL directly, or load it in a host-controlled iframe:
