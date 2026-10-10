@@ -6,6 +6,8 @@
   "ref": "main",
   "exterior": {
     "format": "glb",
-    "path": "public/chroma-world.glb"
+    "source": "generated",
+    "export": "Export to Space",
+    "path": null
   }
 }
