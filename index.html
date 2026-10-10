@@ -15,6 +15,7 @@
       <div class="top-meta"><span class="live-dot"></span> INDEPENDENT WORLD <span class="edition">001 / CHROMA</span></div>
       <div class="export-actions"><button class="primary" id="export-world" title="Download the 3D planet with its current paint texture">↓ &nbsp; Export world</button><button class="icon-button" id="snapshot" title="Save planet as an image" aria-label="Save planet as an image"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M14 3h7v7M21 3l-10 10M10 5H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"/></svg><span>Capture</span></button></div>
     </header>
+    <div class="world-workbench">
     <section class="world" aria-label="Interactive paint planet">
       <div id="scene" role="img" aria-label="A three-dimensional planet covered in swirling, colorful paint. Drag to orbit and scroll to zoom."></div>
       <div id="fallback" hidden><div class="fallback-planet"></div><p>3D rendering is unavailable. Try a browser with WebGL enabled.</p></div>
@@ -23,18 +24,10 @@
       <div class="orbit-hint"><span>↔</span> Drag to explore <i></i> Scroll to get closer</div>
       <div class="world-badge"><span class="live-dot"></span> <span id="motion-status">WORLD IN MOTION</span></div>
     </section>
-    <section class="controls" aria-label="Planet settings">
-      <div class="control-group palette-group"><span class="control-label">YOUR PALETTE</span><div class="palettes" role="group" aria-label="Color palette">
-        <button class="palette active" data-palette="0" aria-label="Prismatic palette" aria-pressed="true" title="Prismatic"><span style="--swatch:linear-gradient(135deg,#fd8466,#ec53b8,#7755ed,#57efd5)"></span></button>
-        <button class="palette" data-palette="1" aria-label="Lagoon palette" aria-pressed="false" title="Lagoon"><span style="--swatch:linear-gradient(135deg,#d6f889,#43d8c5,#117fb0,#3640a9)"></span></button>
-        <button class="palette" data-palette="2" aria-label="Ember palette" aria-pressed="false" title="Ember"><span style="--swatch:linear-gradient(135deg,#fff4aa,#ffa66b,#f54b67,#79255d)"></span></button>
-        <button class="palette" data-palette="3" aria-label="Twilight palette" aria-pressed="false" title="Twilight"><span style="--swatch:linear-gradient(135deg,#bdf7ff,#c996ee,#8660c5,#304480)"></span></button>
-      </div><span id="palette-name">Prismatic</span></div>
-      <div class="control-group flow-group"><label class="control-label" for="flow">PAINT FLOW</label><div class="range-row"><span>Still</span><input id="flow" type="range" min="0" max="100" value="35" aria-label="Paint flow speed"/><span>Fluid</span></div></div>
-      <div class="control-group action-group"><button id="pause" class="secondary" aria-pressed="false">Ⅱ <span>Pause motion</span></button><button id="reset" class="icon-button" aria-label="Reset view and planet settings" title="Reset planet">↺</button><button id="remix" class="primary">✦ &nbsp; Remix world</button></div>
-    </section>
+    <aside class="customizer" aria-label="Live world customization">
     <section class="design-panel" aria-label="World designer">
-      <div class="design-heading"><h2>Design your world</h2><p>Choose a surface. Shape its surroundings. Make it yours.</p></div>
+      <div class="design-heading"><h2>Design your world</h2><p>Changes appear on your planet immediately. Save or export when you’re ready.</p></div>
+      <div class="design-actions"><button id="new-design" class="secondary">New world</button><button id="save-design" class="primary">Save design</button><label>Saved worlds<select id="saved-designs"><option value="">Choose a design</option></select></label><button id="load-design" class="secondary">Load</button><button id="delete-design" class="secondary">Delete saved</button></div>
       <div class="design-grid">
         <label>World name<input id="world-name" maxlength="60" value="Chroma" /></label>
         <label>Planet type<select id="planet-type"><option value="0">Paint</option><option value="1">Rocky</option><option value="2">Ocean</option><option value="3">Gas giant</option><option value="4">Ice</option><option value="5">Lava</option></select></label>
@@ -50,9 +43,21 @@
         <label>Atmosphere glow<input id="atmosphere-glow" type="range" min="0" max="100" value="22" /></label>
         <label>Atmosphere color<input id="atmosphere-color" type="color" value="#8257e8" /></label>
       </div>
-      <div class="design-actions"><button id="new-design" class="secondary">New world</button><button id="save-design" class="primary">Save design</button><label>Saved worlds<select id="saved-designs"><option value="">Choose a design</option></select></label><button id="load-design" class="secondary">Load</button><button id="delete-design" class="secondary">Delete saved</button></div>
+
       <p id="design-status" role="status" aria-live="polite">Designs are saved in this browser.</p>
     </section>
+    <section class="controls" aria-label="Planet settings">
+      <div class="control-group palette-group"><span class="control-label">YOUR PALETTE</span><div class="palettes" role="group" aria-label="Color palette">
+        <button class="palette active" data-palette="0" aria-label="Prismatic palette" aria-pressed="true" title="Prismatic"><span style="--swatch:linear-gradient(135deg,#fd8466,#ec53b8,#7755ed,#57efd5)"></span></button>
+        <button class="palette" data-palette="1" aria-label="Lagoon palette" aria-pressed="false" title="Lagoon"><span style="--swatch:linear-gradient(135deg,#d6f889,#43d8c5,#117fb0,#3640a9)"></span></button>
+        <button class="palette" data-palette="2" aria-label="Ember palette" aria-pressed="false" title="Ember"><span style="--swatch:linear-gradient(135deg,#fff4aa,#ffa66b,#f54b67,#79255d)"></span></button>
+        <button class="palette" data-palette="3" aria-label="Twilight palette" aria-pressed="false" title="Twilight"><span style="--swatch:linear-gradient(135deg,#bdf7ff,#c996ee,#8660c5,#304480)"></span></button>
+      </div><span id="palette-name">Prismatic</span></div>
+      <div class="control-group flow-group"><label class="control-label" for="flow">PAINT FLOW</label><div class="range-row"><span>Still</span><input id="flow" type="range" min="0" max="100" value="35" aria-label="Paint flow speed"/><span>Fluid</span></div></div>
+      <div class="control-group action-group"><button id="pause" class="secondary" aria-pressed="false">Ⅱ <span>Pause motion</span></button><button id="reset" class="icon-button" aria-label="Reset view and planet settings" title="Reset planet">↺</button><button id="remix" class="primary">✦ &nbsp; Remix world</button></div>
+    </section>
+    </aside>
+    </div>
     <section class="space-connector" aria-label="Universal Space connector" style="padding:20px 5%;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
       <strong>SPACE CONNECTOR</strong>
       <label for="import-space-glb" class="secondary" style="cursor:pointer;padding:10px">Import GLB exterior</label>

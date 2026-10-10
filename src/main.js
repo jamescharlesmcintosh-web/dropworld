@@ -145,10 +145,10 @@ try {
     camera.updateProjectionMatrix();
     // Keep the desktop copy clear while framing the globe below the mobile title.
     const narrow = width < 700;
-    const x = embedded ? 0 : narrow ? 0 : .65;
-    const y = embedded ? 0 : narrow ? -.45 : 0;
+    const x = 0;
+    const y = 0;
     globe.position.set(x,y,0); halo.position.copy(globe.position); rings.position.copy(globe.position);
-    const scale = embedded ? Math.min(1, (width / height) * 1.4) : narrow ? .82 : 1;
+    const scale = Math.min(1, (width / height) * 1.4);
     globe.scale.setScalar(scale); halo.scale.setScalar(scale); rings.scale.setScalar(scale);
     controls.target.set(0,0,0);
     dirty = true;
