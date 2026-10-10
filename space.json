@@ -1,0 +1,11 @@
+{
+  "protocol": "universal-space.exterior/1",
+  "id": "dropworld-chroma",
+  "name": "Chroma",
+  "repository": "https://github.com/jamescharlesmcintosh-web/dropworld",
+  "ref": "main",
+  "exterior": {
+    "format": "glb",
+    "path": "public/chroma-world.glb"
+  }
+}
