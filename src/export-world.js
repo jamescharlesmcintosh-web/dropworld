@@ -3,7 +3,7 @@ import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 
 // Bake object-space paint into an equirectangular image. Lighting remains
 // the destination's responsibility, rather than being painted into the map.
-export async function exportWorld(renderer, globe, paletteName) {
+export async function exportWorld(renderer, globe, paletteName, accessories = [], design = {}) {
   const width = 2048, height = 1024;
   const target = new THREE.WebGLRenderTarget(width, height);
   target.texture.colorSpace = THREE.SRGBColorSpace;
@@ -48,16 +48,25 @@ export async function exportWorld(renderer, globe, paletteName) {
     texture.colorSpace = THREE.SRGBColorSpace;
     texture.wrapS = THREE.RepeatWrapping;
     exportedMesh = new THREE.Mesh(globe.geometry.clone(), new THREE.MeshStandardMaterial({ map: texture, roughness: .82, metalness: 0 }));
-    exportedMesh.name = 'Chroma';
+    exportedMesh.name = design['world-name'] || 'Chroma';
     exportedMesh.quaternion.copy(globe.quaternion);
     exportedMesh.userData = {
-      world: 'Chroma', palette: paletteName, paintSeed: material.uniforms.uSeed.value,
+      world: design['world-name'] || 'Chroma', design, palette: paletteName, paintSeed: material.uniforms.uSeed.value,
       paintTime: material.uniforms.uTime.value,
       note: 'Static paint snapshot. Host controls placement, scale, lighting, and animation.',
     };
     const exportScene = new THREE.Scene();
     exportScene.name = 'Dropworld'; exportScene.add(exportedMesh);
-    return await new GLTFExporter().parseAsync(exportScene, { binary: true });
+    for (const source of accessories.filter(object => object?.visible)) {
+      const accessory = new THREE.Mesh(source.geometry.clone(), source.material.isShaderMaterial
+        ? new THREE.MeshBasicMaterial({color:source.material.uniforms.uGlowColor.value,transparent:true,opacity:source.material.uniforms.uGlow.value*.25,side:THREE.BackSide,depthWrite:false})
+        : source.material.clone());
+      accessory.name = source.material.isShaderMaterial ? 'Atmosphere' : 'Rings';
+      accessory.quaternion.copy(source.quaternion);
+      exportScene.add(accessory);
+    }
+    try { return await new GLTFExporter().parseAsync(exportScene, { binary: true }); }
+    finally { for(const object of exportScene.children) if(object !== exportedMesh) {object.geometry.dispose();object.material.dispose();} }
   } finally {
     target.dispose(); plane.geometry.dispose(); material.dispose();
     texture?.dispose(); exportedMesh?.geometry.dispose(); exportedMesh?.material.dispose();

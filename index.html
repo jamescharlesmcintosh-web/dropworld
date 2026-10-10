@@ -33,6 +33,26 @@
       <div class="control-group flow-group"><label class="control-label" for="flow">PAINT FLOW</label><div class="range-row"><span>Still</span><input id="flow" type="range" min="0" max="100" value="35" aria-label="Paint flow speed"/><span>Fluid</span></div></div>
       <div class="control-group action-group"><button id="pause" class="secondary" aria-pressed="false">Ⅱ <span>Pause motion</span></button><button id="reset" class="icon-button" aria-label="Reset view and planet settings" title="Reset planet">↺</button><button id="remix" class="primary">✦ &nbsp; Remix world</button></div>
     </section>
+    <section class="design-panel" aria-label="World designer">
+      <div class="design-heading"><h2>Design your world</h2><p>Choose a surface. Shape its surroundings. Make it yours.</p></div>
+      <div class="design-grid">
+        <label>World name<input id="world-name" maxlength="60" value="Chroma" /></label>
+        <label>Planet type<select id="planet-type"><option value="0">Paint</option><option value="1">Rocky</option><option value="2">Ocean</option><option value="3">Gas giant</option><option value="4">Ice</option><option value="5">Lava</option></select></label>
+        <fieldset class="custom-colors"><legend>Surface colors</legend><label>Color 1<input type="color" id="color-0" value="#75e1cf" /></label><label>Color 2<input type="color" id="color-1" value="#6258df" /></label><label>Color 3<input type="color" id="color-2" value="#ee70b4" /></label><label>Color 4<input type="color" id="color-3" value="#ffbc77" /></label></fieldset>
+        <label>Surface detail<input id="surface-detail" type="range" min="1" max="8" step="0.1" value="1.7" /></label>
+        <label>Rotation speed<input id="rotation-speed" type="range" min="0" max="30" value="7.5" step="0.5" /></label>
+        <label>Axial tilt<input id="axial-tilt" type="range" min="-75" max="75" value="-10" /></label>
+        <label class="toggle"><input id="rings-enabled" type="checkbox" /> Rings</label>
+        <label>Ring size<input id="ring-size" type="range" min="1.3" max="2.4" step="0.05" value="1.8" /></label>
+        <label>Ring tilt<input id="ring-tilt" type="range" min="-75" max="75" value="25" /></label>
+        <label>Ring color<input id="ring-color" type="color" value="#c5b0ff" /></label>
+        <label class="toggle"><input id="atmosphere-enabled" type="checkbox" checked /> Atmosphere</label>
+        <label>Atmosphere glow<input id="atmosphere-glow" type="range" min="0" max="100" value="22" /></label>
+        <label>Atmosphere color<input id="atmosphere-color" type="color" value="#8257e8" /></label>
+      </div>
+      <div class="design-actions"><button id="new-design" class="secondary">New world</button><button id="save-design" class="primary">Save design</button><label>Saved worlds<select id="saved-designs"><option value="">Choose a design</option></select></label><button id="load-design" class="secondary">Load</button><button id="delete-design" class="secondary">Delete saved</button></div>
+      <p id="design-status" role="status" aria-live="polite">Designs are saved in this browser.</p>
+    </section>
     <section class="space-connector" aria-label="Universal Space connector" style="padding:20px 5%;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
       <strong>SPACE CONNECTOR</strong>
       <label for="import-space-glb" class="secondary" style="cursor:pointer;padding:10px">Import GLB exterior</label>

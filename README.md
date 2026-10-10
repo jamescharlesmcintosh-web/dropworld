@@ -44,3 +44,9 @@ For Backgrid or Vault Venture, use their existing URL/file loading facility. No 
 ## Rendering
 
 One Three.js WebGL renderer, a procedural paint shader, no downloaded textures. Container resizing updates the camera and canvas. Device pixel ratio is capped, hidden pages stop rendering, and a static color globe appears when WebGL cannot initialize. Touch orbit and pinch are supported; UI controls are keyboard accessible. Capture exports the scene canvas, not the surrounding page.
+
+## Design options
+
+Choose paint, rocky, ocean, gas giant, ice or lava surfaces. Customize four surface colors, detail, rotation and axial tilt. Add rings with size, tilt and color controls, and adjust atmosphere color and glow. New world resets the design; Save design, Load and Delete saved manage multiple designs in this browser. Saving an existing selected design updates it; choose New world to create a separate design. Browser storage does not sync between devices.
+
+GLB exports now include enabled rings, the named world and its design settings. Atmosphere exports as a translucent shell approximating the browser rim glow; destination lighting and transparency affect its appearance. Paint and rotation remain static snapshots in GLB. These changes add design tools only: site attachment and the Space connector update remain separate work.
