@@ -51,10 +51,10 @@ export function setupSpaceConnector(exportCurrent) {
       const target = new URL(localStorage.getItem('dropworld-space-url') || DEFAULT_SPACE);
       if (target.protocol !== 'https:') throw new Error('Space must use HTTPS.');
       target.searchParams.set('connect_origin', location.origin);
+      const binary = await bytes();
       popup = window.open(target.href, 'dropworld-space', 'width=1100,height=750');
       if (!popup) throw new Error('Allow the Space popup and try again.');
       status('Connecting to Space…');
-      const binary = await bytes();
       const requestId = crypto.randomUUID();
       await new Promise((resolve, reject) => {
         timeout = setTimeout(() => reject(new Error('Space did not respond. Check the Space URL and deployment.')), 25000);
