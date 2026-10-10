@@ -33,6 +33,14 @@
       <div class="control-group flow-group"><label class="control-label" for="flow">PAINT FLOW</label><div class="range-row"><span>Still</span><input id="flow" type="range" min="0" max="100" value="35" aria-label="Paint flow speed"/><span>Fluid</span></div></div>
       <div class="control-group action-group"><button id="pause" class="secondary" aria-pressed="false">Ⅱ <span>Pause motion</span></button><button id="reset" class="icon-button" aria-label="Reset view and planet settings" title="Reset planet">↺</button><button id="remix" class="primary">✦ &nbsp; Remix world</button></div>
     </section>
+    <section class="space-connector" aria-label="Universal Space connector" style="padding:20px 5%;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+      <strong>SPACE CONNECTOR</strong>
+      <label for="import-space-glb" class="secondary" style="cursor:pointer;padding:10px">Import GLB exterior</label>
+      <input id="import-space-glb" type="file" accept=".glb,model/gltf-binary" aria-label="Import GLB exterior" style="max-width:210px" />
+      <button class="primary" id="export-to-space">Export to Space</button>
+      <button class="secondary" id="download-space-package">Download Space files</button>
+      <p id="space-connector-status" role="status" aria-live="polite" style="flex-basis:100%;margin:0">Exports only the exterior, never the website.</p>
+    </section>
     <footer><span>A world of your own.</span><span>SELF-CONTAINED <b>·</b> READY TO GO ANYWHERE</span><span>Made to be explored <span class="tiny-star">✧</span></span></footer>
     <p class="export-notice" id="export-notice" role="status" aria-live="polite" hidden></p>
     <p class="sr-only" id="announcement" role="status" aria-live="polite"></p>
