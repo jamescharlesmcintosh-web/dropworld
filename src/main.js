@@ -136,7 +136,7 @@ try {
   }));
   scene.add(halo);
   rings = new THREE.Mesh(new THREE.RingGeometry(1.48*1.18,1.48*1.8,128),new THREE.MeshBasicMaterial({color:'#c5b0ff',side:THREE.DoubleSide,transparent:true,opacity:.7}));
-  rings.rotation.x = -Math.PI/2; rings.rotation.z = THREE.MathUtils.degToRad(25); rings.visible=false; scene.add(rings);
+  rings.rotation.x = THREE.MathUtils.degToRad(-65); rings.visible=false; scene.add(rings);
   function resize() {
     const { width, height } = container.getBoundingClientRect();
     if (!width || !height) return;
@@ -267,7 +267,8 @@ function applyDesign() {
   globe.rotation.z=THREE.MathUtils.degToRad(Number(document.getElementById('axial-tilt').value));
   rings.visible=document.getElementById('rings-enabled').checked;
   rings.geometry.dispose();rings.geometry=new THREE.RingGeometry(1.48*1.18,1.48*Number(document.getElementById('ring-size').value),128);
-  rings.rotation.z=THREE.MathUtils.degToRad(Number(document.getElementById('ring-tilt').value));
+  // Tilt the ring plane toward the viewer; rotating around its normal leaves it edge-on.
+  rings.rotation.set(-Math.PI/2 + THREE.MathUtils.degToRad(Number(document.getElementById('ring-tilt').value)), 0, globe.rotation.z);
   rings.material.color.set(document.getElementById('ring-color').value);
   halo.visible=document.getElementById('atmosphere-enabled').checked;
   halo.material.uniforms.uGlow.value=Number(document.getElementById('atmosphere-glow').value)/100;
