@@ -1,9 +1,10 @@
 import * as THREE from 'three';
+import { createRingAnimation } from './planet-rings.js';
 import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 
 // Bake object-space paint into an equirectangular image. Lighting remains
 // the destination's responsibility, rather than being painted into the map.
-export async function exportWorld(renderer, globe, paletteName, accessories = [], design = {}) {
+export async function exportWorld(renderer, globe, paletteName, accessories = [], design = {}, { animateRings = false, ringSpeed = 0 } = {}) {
   const width = 2048, height = 1024;
   const target = new THREE.WebGLRenderTarget(width, height);
   target.texture.colorSpace = THREE.SRGBColorSpace;
@@ -57,7 +58,16 @@ export async function exportWorld(renderer, globe, paletteName, accessories = []
     };
     const exportScene = new THREE.Scene();
     exportScene.name = 'Dropworld'; exportScene.add(exportedMesh);
+    const animations = [];
     for (const source of accessories.filter(object => object?.visible)) {
+      if (source.isGroup) {
+        const group = source.clone();
+        group.position.set(0,0,0); group.scale.setScalar(1);
+        group.traverse(object => { if (object.isMesh) { object.geometry = object.geometry.clone(); object.material = object.material.clone(); } });
+        exportScene.add(group);
+        if (animateRings) animations.push(...createRingAnimation(group, ringSpeed));
+        continue;
+      }
       const accessory = new THREE.Mesh(source.geometry.clone(), source.material.isShaderMaterial
         ? new THREE.MeshBasicMaterial({color:source.material.uniforms.uGlowColor.value,transparent:true,opacity:source.material.uniforms.uGlow.value*.25,side:THREE.BackSide,depthWrite:false})
         : source.material.clone());
@@ -65,8 +75,8 @@ export async function exportWorld(renderer, globe, paletteName, accessories = []
       accessory.quaternion.copy(source.quaternion);
       exportScene.add(accessory);
     }
-    try { return await new GLTFExporter().parseAsync(exportScene, { binary: true }); }
-    finally { for(const object of exportScene.children) if(object !== exportedMesh) {object.geometry.dispose();object.material.dispose();} }
+    try { return await new GLTFExporter().parseAsync(exportScene, { binary: true, animations }); }
+    finally { exportScene.traverse(object => { if(object.isMesh && object !== exportedMesh) {object.geometry.dispose();object.material.dispose();} }); }
   } finally {
     target.dispose(); plane.geometry.dispose(); material.dispose();
     texture?.dispose(); exportedMesh?.geometry.dispose(); exportedMesh?.material.dispose();

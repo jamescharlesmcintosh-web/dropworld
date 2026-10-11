@@ -50,3 +50,9 @@ One Three.js WebGL renderer, a procedural paint shader, no downloaded textures. 
 Choose paint, rocky, ocean, gas giant, ice or lava surfaces. Customize four surface colors, detail, rotation and axial tilt. Add rings with size, tilt and color controls, and adjust atmosphere color and glow. New world resets the design; Save design, Load and Delete saved manage multiple designs in this browser. Saving an existing selected design updates it; choose New world to create a separate design. Browser storage does not sync between devices.
 
 GLB exports now include enabled rings, the named world and its design settings. Atmosphere exports as a translucent shell approximating the browser rim glow; destination lighting and transparency affect its appearance. Paint and rotation remain static snapshots in GLB. These changes add design tools only: site attachment and the Space connector update remain separate work.
+
+## Multiple moving rings
+
+Enable **Rings**, then choose one to five rings. **Move rings** rotates visible textured streaks in alternating directions; **Ring speed** controls movement. Size, tilt, and color remain adjustable. Pause motion freezes both planet and rings; reduced motion starts paused. New ring settings are included in saved designs.
+
+World export and Space export include all enabled rings. GLB includes a looping ring-rotation animation when Move rings is enabled, world motion is running, and ring speed is above zero. The destination must play that animation. Paused rings export as static geometry; paint stays a baked snapshot.

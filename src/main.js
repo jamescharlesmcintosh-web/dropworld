@@ -1,5 +1,6 @@
 import './style.css';
 import * as THREE from 'three';
+import { createPlanetRings, disposePlanetRings, ringAngularSpeed } from './planet-rings.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 const embedded = new URLSearchParams(location.search).get('embed') === '1';
@@ -14,7 +15,8 @@ const palettes = [
   ['#b9edf5', '#be99ed', '#7960bd', '#3c5489'],
 ];
 let renderer, scene, camera, controls, globe, halo, rings;
-let rotationSpeed = .075;
+let rotationSpeed = .075, ringMotion = true, ringSpeed = .35;
+let resizeScene;
 let paused = reducedMotion.matches, flow = 0.35, seed = 2.4, palette = 0;
 let dirty = true, elapsed = 0, previous = performance.now();
 const announce = (message) => { document.querySelector('#announcement').textContent = message; };
@@ -135,9 +137,9 @@ try {
     fragmentShader:`uniform float uGlow; uniform vec3 uGlowColor; varying vec3 vN; varying vec3 vV; void main(){float rim=pow(1.0-abs(dot(normalize(vN),normalize(vV))),3.0);gl_FragColor=vec4(uGlowColor,rim*uGlow);}`,
   }));
   scene.add(halo);
-  rings = new THREE.Mesh(new THREE.RingGeometry(1.48*1.18,1.48*1.8,128),new THREE.MeshBasicMaterial({color:'#c5b0ff',side:THREE.DoubleSide,transparent:true,opacity:.7}));
-  rings.rotation.x = THREE.MathUtils.degToRad(-65); rings.visible=false; scene.add(rings);
-  function resize() {
+  rings = createPlanetRings(2, ['#c5b0ff']);
+  rings.visible = false; scene.add(rings);
+  resizeScene = function resize() {
     const { width, height } = container.getBoundingClientRect();
     if (!width || !height) return;
     renderer.setSize(width,height);
@@ -148,13 +150,14 @@ try {
     const x = 0;
     const y = 0;
     globe.position.set(x,y,0); halo.position.copy(globe.position); rings.position.copy(globe.position);
-    const scale = Math.min(1, (width / height) * 1.4);
+    const framing = rings.visible ? 1 / Number(document.getElementById('ring-size').value) : 1;
+    const scale = Math.min(1, (width / height) * 1.4) * framing;
     globe.scale.setScalar(scale); halo.scale.setScalar(scale); rings.scale.setScalar(scale);
     controls.target.set(0,0,0);
     dirty = true;
   }
-  new ResizeObserver(resize).observe(container);
-  resize();
+  new ResizeObserver(resizeScene).observe(container);
+  resizeScene();
   function render(now) {
     requestAnimationFrame(render);
     const delta = Math.min((now-previous)/1000,.05);
@@ -164,6 +167,7 @@ try {
       elapsed += delta*flow;
       globe.material.uniforms.uTime.value = elapsed;
       globe.rotation.y += delta*rotationSpeed;
+      if (rings.visible && ringMotion) rings.children.forEach((ring,index) => { ring.rotation.z += delta * ringAngularSpeed(index, ringSpeed); });
       dirty = true;
     }
     controls.update();
@@ -229,12 +233,12 @@ exportButton.addEventListener('click', async () => {
   notice.textContent = 'Preparing your planet and paint texture…';
   try {
     const { exportWorld } = await import('./export-world.js');
-    const binary = await exportWorld(renderer, globe, names[palette], [rings, halo], currentDesign());
+    const binary = await exportWorld(renderer, globe, names[palette], [rings, halo], currentDesign(), { animateRings: ringMotion && !paused, ringSpeed });
     const url = URL.createObjectURL(new Blob([binary], { type: 'model/gltf-binary' }));
     const link = document.createElement('a');
     link.download = 'chroma-world.glb'; link.href = url; link.click();
     setTimeout(() => URL.revokeObjectURL(url), 60000);
-    notice.textContent = 'World exported as GLB with its current paint texture. Animated paint stays in the web experience.';
+    notice.textContent = 'World exported with its rings. Ring movement is included when enabled; flowing paint stays in the web experience.';
   } catch (error) {
     console.error('World export failed:', error);
     notice.textContent = 'Export failed. Please try again or reload the experience.';
@@ -249,10 +253,10 @@ import { setupSpaceConnector } from './space-connector.js';
 setupSpaceConnector(async () => {
   if (!renderer || !globe || container.hidden) throw new Error('3D renderer unavailable.');
   const { exportWorld } = await import('./export-world.js');
-  return exportWorld(renderer, globe, names[palette], [rings, halo], currentDesign());
+  return exportWorld(renderer, globe, names[palette], [rings, halo], currentDesign(), { animateRings: ringMotion && !paused, ringSpeed });
 });
 
-const designIds = ['world-name','planet-type','surface-detail','rotation-speed','axial-tilt','rings-enabled','ring-size','ring-tilt','ring-color','atmosphere-enabled','atmosphere-glow','atmosphere-color', 'color-0','color-1','color-2','color-3'];
+const designIds = ['world-name','planet-type','surface-detail','rotation-speed','axial-tilt','rings-enabled','ring-size','ring-tilt','ring-color','ring-count','ring-motion','ring-speed','atmosphere-enabled','atmosphere-glow','atmosphere-color', 'color-0','color-1','color-2','color-3'];
 function currentDesign() {
   return Object.fromEntries(designIds.map(id => {const input=document.getElementById(id);return [id,input.type==='checkbox'?input.checked:input.value];}).concat([['paintSeed',seed],['paintTime',elapsed],['flow',flow],['palette',palette]]));
 }
@@ -266,16 +270,28 @@ function applyDesign() {
   rotationSpeed=Number(document.getElementById('rotation-speed').value)/100;
   globe.rotation.z=THREE.MathUtils.degToRad(Number(document.getElementById('axial-tilt').value));
   rings.visible=document.getElementById('rings-enabled').checked;
-  rings.geometry.dispose();rings.geometry=new THREE.RingGeometry(1.48*1.18,1.48*Number(document.getElementById('ring-size').value),128);
+  const count = Number(document.getElementById('ring-count').value);
+  const size = Number(document.getElementById('ring-size').value);
+  const color = document.getElementById('ring-color').value;
+  const buildKey = `${count}:${size}:${color}`;
+  if (rings.userData.buildKey !== buildKey) {
+    const visible = rings.visible;
+    scene.remove(rings); disposePlanetRings(rings);
+    rings = createPlanetRings(count, [color], { innerRadius: 1.48 * 1.18, outerRadius: 1.48 * size });
+    rings.userData.buildKey = buildKey; rings.visible = visible; scene.add(rings);
+  }
+  ringMotion = document.getElementById('ring-motion').checked;
+  ringSpeed = Number(document.getElementById('ring-speed').value) / 100;
   // Tilt the ring plane toward the viewer; rotating around its normal leaves it edge-on.
   rings.rotation.set(-Math.PI/2 + THREE.MathUtils.degToRad(Number(document.getElementById('ring-tilt').value)), 0, globe.rotation.z);
-  rings.material.color.set(document.getElementById('ring-color').value);
+  resizeScene?.();
   halo.visible=document.getElementById('atmosphere-enabled').checked;
   halo.material.uniforms.uGlow.value=Number(document.getElementById('atmosphere-glow').value)/100;
   halo.material.uniforms.uGlowColor.value.set(document.getElementById('atmosphere-color').value);
   dirty=true;
 }
 function restoreDesign(design) {
+  design = { 'ring-count': '2', 'ring-motion': true, 'ring-speed': '35', ...design };
   for(const id of designIds){const input=document.getElementById(id);if(design[id]!==undefined){if(input.type==='checkbox') input.checked=design[id];else input.value=design[id];}}
   seed=design.paintSeed??2.4; elapsed=design.paintTime??0; flow=design.flow??.35; palette=design.palette??0;
   document.getElementById('flow').value=flow*100;
