@@ -56,3 +56,9 @@ GLB exports now include enabled rings, the named world and its design settings. 
 Enable **Rings**, then choose one to five rings. **Move rings** rotates visible textured streaks in alternating directions; **Ring speed** controls movement. Size, tilt, and color remain adjustable. Pause motion freezes both planet and rings; reduced motion starts paused. New ring settings are included in saved designs.
 
 World export and Space export include all enabled rings. GLB includes a looping ring-rotation animation when Move rings is enabled, world motion is running, and ring speed is above zero. The destination must play that animation. Paused rings export as static geometry; paint stays a baked snapshot.
+
+## Individual ring axes and styles
+
+In **Edit an individual ring**, select a ring and set its X/Y/Z angles around the planet center. Each ring can have its own flat band, round tube, dashed arcs, beaded orbit, or dust orbit style; color, size, width, spin speed, and direction are independent too. Group tilt remains an overall adjustment. Zero spin speed holds only that ring still. Reset this ring restores its defaults without changing the others.
+
+Saved designs preserve all five ring configurations, including temporarily hidden rings. Old saved designs load with default individual settings. GLB exports preserve each ring’s axis and geometry. Each moving ring has its own looping animation clip; the receiving engine must play those clips to animate all rings independently.

@@ -47,6 +47,23 @@
         <label>Atmosphere color<input id="atmosphere-color" type="color" value="#8257e8" /></label>
       </div>
 
+      <fieldset class="ring-editor">
+        <legend>Edit an individual ring</legend>
+        <label>Selected ring<select id="selected-ring"><option value="0">Ring 1</option><option value="1">Ring 2</option></select></label>
+        <p>Set this ring’s axis around the planet’s center. Group tilt still applies to all rings.</p>
+        <div class="design-grid">
+          <label>Ring style<select id="individual-style"><option value="band">Flat band</option><option value="tube">Round tube</option><option value="dashed">Dashed arcs</option><option value="beads">Beaded orbit</option><option value="dust">Dust orbit</option></select></label>
+          <label>Ring color<input id="individual-color" type="color" value="#c5b0ff"></label>
+          <label>Tilt X <output id="angle-x">0°</output><input id="individual-tiltX" type="range" min="-180" max="180" value="0"></label>
+          <label>Tilt Y <output id="angle-y">0°</output><input id="individual-tiltY" type="range" min="-180" max="180" value="0"></label>
+          <label>Rotate Z <output id="angle-z">0°</output><input id="individual-tiltZ" type="range" min="-180" max="180" value="0"></label>
+          <label>Ring size<input id="individual-size" type="range" min="0.7" max="1.6" step="0.05" value="1"></label>
+          <label>Ring width<input id="individual-width" type="range" min="0.3" max="3" step="0.1" value="1"></label>
+          <label>Spin speed<input id="individual-speed" type="range" min="0" max="3" step="0.1" value="1"></label>
+          <label>Spin direction<select id="individual-direction"><option value="auto">Alternating default</option><option value="clockwise">Clockwise</option><option value="counterclockwise">Counterclockwise</option></select></label>
+        </div>
+        <button id="reset-ring" class="secondary">Reset this ring</button>
+      </fieldset>
       <p id="design-status" role="status" aria-live="polite">Designs are saved in this browser.</p>
     </section>
     <section class="controls" aria-label="Planet settings">

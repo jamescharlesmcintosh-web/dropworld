@@ -14,3 +14,5 @@
 @media(max-width:800px){#app{padding:0 12px}.topbar{height:64px}.world-workbench{grid-template-columns:1fr;grid-template-rows:42% minmax(0,1fr);height:calc(100dvh - 76px);min-height:560px;gap:12px;padding:12px 0}.world-workbench .world-title{left:14px;top:14px}.world-workbench .coordinates,.world-workbench .world-badge,.world-workbench .orbit-hint{display:none}.customizer .design-panel{padding:16px}.customizer .design-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.world-workbench h1{font-size:18px}.world-workbench h1 em{font-size:21px}.customizer{scrollbar-gutter:auto}.customizer .controls{padding:16px}}
 /* The connector has an inline layout; hide it in scene-only embeds. */
 .embed .space-connector{display:none!important}
+
+.ring-editor{border:1px solid #ffffff24;border-radius:10px;margin:20px 0;padding:14px;min-width:0}.ring-editor legend{font-size:13px;color:#d6c9ef}.ring-editor>label{display:flex;gap:10px;align-items:center;font-size:12px}.ring-editor>p{font-size:11px;color:#a7a0b9;line-height:1.6}.ring-editor .design-grid{margin:16px 0}.ring-editor output{font-size:10px;color:#c5b0ff}.ring-editor .design-grid>label:first-child{grid-column:auto}

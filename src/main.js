@@ -1,6 +1,6 @@
 import './style.css';
 import * as THREE from 'three';
-import { createPlanetRings, disposePlanetRings, ringAngularSpeed } from './planet-rings.js';
+import { createPlanetRings, disposePlanetRings, advanceRings, normalizeRing } from './planet-rings.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 const embedded = new URLSearchParams(location.search).get('embed') === '1';
@@ -17,6 +17,7 @@ const palettes = [
 let renderer, scene, camera, controls, globe, halo, rings;
 let rotationSpeed = .075, ringMotion = true, ringSpeed = .35;
 let resizeScene;
+let ringConfigs = Array.from({ length: 5 }, () => normalizeRing());
 let paused = reducedMotion.matches, flow = 0.35, seed = 2.4, palette = 0;
 let dirty = true, elapsed = 0, previous = performance.now();
 const announce = (message) => { document.querySelector('#announcement').textContent = message; };
@@ -150,7 +151,7 @@ try {
     const x = 0;
     const y = 0;
     globe.position.set(x,y,0); halo.position.copy(globe.position); rings.position.copy(globe.position);
-    const framing = rings.visible ? 1 / Number(document.getElementById('ring-size').value) : 1;
+    const framing = rings.visible ? 1 / (Number(document.getElementById('ring-size').value) * Math.max(1, ...ringConfigs.slice(0, Number(document.getElementById('ring-count').value)).map(config => config.size))) : 1;
     const scale = Math.min(1, (width / height) * 1.4) * framing;
     globe.scale.setScalar(scale); halo.scale.setScalar(scale); rings.scale.setScalar(scale);
     controls.target.set(0,0,0);
@@ -167,7 +168,7 @@ try {
       elapsed += delta*flow;
       globe.material.uniforms.uTime.value = elapsed;
       globe.rotation.y += delta*rotationSpeed;
-      if (rings.visible && ringMotion) rings.children.forEach((ring,index) => { ring.rotation.z += delta * ringAngularSpeed(index, ringSpeed); });
+      if (rings.visible && ringMotion) advanceRings(rings, delta, ringSpeed);
       dirty = true;
     }
     controls.update();
@@ -258,7 +259,7 @@ setupSpaceConnector(async () => {
 
 const designIds = ['world-name','planet-type','surface-detail','rotation-speed','axial-tilt','rings-enabled','ring-size','ring-tilt','ring-color','ring-count','ring-motion','ring-speed','atmosphere-enabled','atmosphere-glow','atmosphere-color', 'color-0','color-1','color-2','color-3'];
 function currentDesign() {
-  return Object.fromEntries(designIds.map(id => {const input=document.getElementById(id);return [id,input.type==='checkbox'?input.checked:input.value];}).concat([['paintSeed',seed],['paintTime',elapsed],['flow',flow],['palette',palette]]));
+  return Object.fromEntries(designIds.map(id => {const input=document.getElementById(id);return [id,input.type==='checkbox'?input.checked:input.value];}).concat([['paintSeed',seed],['paintTime',elapsed],['flow',flow],['palette',palette],['ringConfigs',structuredClone(ringConfigs)]]));
 }
 const defaults=currentDesign();
 function applyDesign() {
@@ -273,11 +274,11 @@ function applyDesign() {
   const count = Number(document.getElementById('ring-count').value);
   const size = Number(document.getElementById('ring-size').value);
   const color = document.getElementById('ring-color').value;
-  const buildKey = `${count}:${size}:${color}`;
+  const buildKey = `${count}:${size}:${color}:${JSON.stringify(ringConfigs.slice(0,count))}`;
   if (rings.userData.buildKey !== buildKey) {
     const visible = rings.visible;
     scene.remove(rings); disposePlanetRings(rings);
-    rings = createPlanetRings(count, [color], { innerRadius: 1.48 * 1.18, outerRadius: 1.48 * size });
+    rings = createPlanetRings(count, [color], { innerRadius: 1.48 * 1.18, outerRadius: 1.48 * size, configs: ringConfigs });
     rings.userData.buildKey = buildKey; rings.visible = visible; scene.add(rings);
   }
   ringMotion = document.getElementById('ring-motion').checked;
@@ -288,10 +289,12 @@ function applyDesign() {
   halo.visible=document.getElementById('atmosphere-enabled').checked;
   halo.material.uniforms.uGlow.value=Number(document.getElementById('atmosphere-glow').value)/100;
   halo.material.uniforms.uGlowColor.value.set(document.getElementById('atmosphere-color').value);
+  syncRingEditor();
   dirty=true;
 }
 function restoreDesign(design) {
   design = { 'ring-count': '2', 'ring-motion': true, 'ring-speed': '35', ...design };
+  ringConfigs = Array.from({ length: 5 }, (_, i) => normalizeRing(design.ringConfigs?.[i]));
   for(const id of designIds){const input=document.getElementById(id);if(design[id]!==undefined){if(input.type==='checkbox') input.checked=design[id];else input.value=design[id];}}
   seed=design.paintSeed??2.4; elapsed=design.paintTime??0; flow=design.flow??.35; palette=design.palette??0;
   document.getElementById('flow').value=flow*100;
@@ -312,3 +315,28 @@ document.getElementById('save-design').addEventListener('click',()=>{try{const d
 document.getElementById('load-design').addEventListener('click',()=>{const design=readDesigns()[document.getElementById('saved-designs').value];if(design){restoreDesign(design);designStatus.textContent='Design loaded.';}else designStatus.textContent='Choose a saved design first.';});
 document.getElementById('delete-design').addEventListener('click',()=>{try{const designs=readDesigns();delete designs[document.getElementById('saved-designs').value];localStorage.setItem('dropworld-saved-designs',JSON.stringify(designs));refreshDesigns();designStatus.textContent='Saved design removed. Current world remains editable.';}catch{designStatus.textContent='Browser storage is unavailable.';}});
 refreshDesigns();applyDesign();
+
+function syncRingEditor() {
+  const select = document.getElementById('selected-ring');
+  const count = Number(document.getElementById('ring-count').value);
+  const selected = Math.min(Number(select.value) || 0, count - 1);
+  if (select.options.length !== count) select.replaceChildren(...Array.from({ length: count }, (_, i) => new Option(`Ring ${i + 1}`, String(i))));
+  select.value = String(selected);
+  const config = ringConfigs[selected];
+  for (const key of Object.keys(config)) {
+    const input = document.getElementById(`individual-${key}`);
+    if (input) input.value = key === 'color' ? config.color || document.getElementById('ring-color').value : config[key];
+  }
+  for (const [axis, key] of [['x','tiltX'],['y','tiltY'],['z','tiltZ']]) document.getElementById(`angle-${axis}`).value = `${config[key]}°`;
+}
+document.getElementById('selected-ring').addEventListener('change', syncRingEditor);
+for (const key of Object.keys(normalizeRing())) {
+  document.getElementById(`individual-${key}`).addEventListener('input', event => {
+    const selected = Number(document.getElementById('selected-ring').value);
+    ringConfigs[selected][key] = ['style','direction','color'].includes(key) ? event.target.value : Number(event.target.value);
+    applyDesign();
+  });
+}
+document.getElementById('reset-ring').addEventListener('click', () => {
+  ringConfigs[Number(document.getElementById('selected-ring').value)] = normalizeRing(); applyDesign();
+});
